@@ -1,0 +1,240 @@
+
+.marquee-bar {
+    background: linear-gradient(90deg, #000080, #0000aa, #000080);
+    border: 3px ridge var(--neon-yellow);
+    padding: 0.4rem 0;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.marquee-text {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 30s linear infinite;
+    color: var(--neon-yellow);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+
+.title-area {
+    text-align: center;
+    padding: 1.5rem 0;
+    border-bottom: 3px double var(--neon-pink);
+    margin-bottom: 1rem;
+}
+
+.subtitle {
+    color: var(--neon-green);
+    font-size: 1.2rem;
+    animation: rainbow 4s linear infinite;
+}
+
+.visitor-counter {
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.5rem;
+}
+
+.counter-label {
+    color: var(--neon-green);
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+.counter-digits {
+    display: inline-flex;
+    gap: 2px;
+    background: #111;
+    padding: 4px 8px;
+    border: 2px inset #666;
+}
+
+.counter-digit {
+    background: #001a00;
+    color: var(--neon-green);
+    font-size: 1.5rem;
+    padding: 2px 6px;
+    border: 1px solid #003300;
+    min-width: 1.4em;
+    text-align: center;
+}
+
+.section-header .deco {
+    animation: spin 3s linear infinite;
+    display: inline-block;
+}
+
+.welcome-text {
+    background: #000033;
+    border: 3px ridge var(--neon-cyan);
+    padding: 1rem;
+    margin: 1rem 0;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.welcome-text p {
+    margin-bottom: 0.5rem;
+}
+
+.project-desc {
+    color: #aaaacc;
+    font-size: 0.95rem;
+}
+
+.new-badge {
+    display: inline-block;
+    background: var(--hot-red);
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    padding: 2px 5px;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+.cool-badge {
+    display: inline-block;
+    color: var(--neon-green);
+    font-size: 0.9rem;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.latest-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+@media (max-width: 500px) {
+    .latest-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+.latest-card {
+    background: #000033;
+    border: 3px ridge var(--neon-pink);
+    padding: 0.8rem;
+    text-align: center;
+}
+
+.latest-card h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--neon-pink);
+    margin-bottom: 0.5rem;
+}
+
+.latest-card a {
+    color: var(--link-blue);
+    text-decoration: underline;
+    font-size: 1.1rem;
+    display: block;
+    margin: 0.3rem 0;
+}
+
+.latest-card a:hover {
+    color: var(--neon-yellow);
+}
+
+.latest-card .type-label {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.download-arrow {
+    display: inline-block;
+    animation: float 1.5s ease-in-out infinite;
+}
+
+.friends-zone {
+    margin: 1.5rem 0;
+}
+
+.friends-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 2fr));
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+.friend-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #110033;
+    border: 2px ridge var(--neon-cyan);
+    padding: 0.6rem;
+    text-decoration: none;
+    color: var(--neon-cyan);
+    aspect-ratio: 2;
+    font-size: 0.85rem;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 400px) {
+    .friend-link {
+        aspect-ratio: 1;
+    }
+}
+
+.friend-link:hover {
+    background: #220055;
+    border-color: var(--neon-yellow);
+    color: var(--neon-yellow);
+    transform: scale(1.05);
+}
+
+.friend-link .placeholder-img {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #333, #555);
+    border: 1px solid #666;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.friend-link .friend-name {
+    font-size: 0.9rem;
+}
+
+.guestbook-prompt {
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.6rem;
+    border: 2px dashed var(--neon-pink);
+    font-size: 1rem;
+}
+
+.guestbook-prompt a {
+    color: var(--neon-pink);
+}
+
+.email-link {
+    animation: rainbow 3s linear infinite;
+    font-size: 1.1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .marquee-text {
+        animation: none;
+        transform: none;
+    }
+}
