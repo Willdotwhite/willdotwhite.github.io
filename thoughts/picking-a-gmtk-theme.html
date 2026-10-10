@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title></title>
+    <meta content="" name="description">
+
+    <link href="/public/favicon.svg" rel="icon" type="image/x-icon"/>
+
+    <link href="/assets/css/common.css" rel="stylesheet">
+    <link href="/assets/css/thoughts.css" rel="stylesheet">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bungee+Shade&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="bg-[#0a0c1f]">
+<main class="h-screen container _mx-auto flex flex-col justify-between" style="margin: 0 auto;">
+    <header class="text-center"></header>
+
+    <div aria-hidden="true" class="starfield" id="starfield"></div>
+
+    <div class="page-wrapper">
+        <section>
+            <h1 id="data-science-experiment">Data Science Experiment</h1>
+
+<reader-warning></reader-warning>
+
+<hr />
+
+<h2 id="i-dont-understand-data-science">I Don’t Understand Data Science</h2>
+
+<div class="text">
+  <p>Data Science: I don’t know how to do it. I get the concepts, I have a hazy memory of various statistics classes from a
+decade or two ago, and I’ve even brushed up on how a lot of the tech required for a machine learning platform to run
+models and make inference at scale.</p>
+
+  <p>But I don’t know how to <em>do</em> the Data Science process; with programming tasks, I’ve understand how to break down work
+into smaller chunks, and I have a (for wont of a better word) vibe for what does and doesn’t make sense. I can look at
+the debugger and have a feel for if something doesn’t add up. I have no idea how to look at the results of some :
+sparkle: maths :sparkle: and think “Ok, this does(n’t) make sense, so next I’ll do…” something, I guess.</p>
+
+  <p>And I want to learn that - my team is building out a Data Science platform from scratch, and I’d love to have more than
+just a theoretical understanding of how this all works. I don’t expect to be writing any of the actual model logic
+itself, but I’d be able to ask much more insightful questions if I had some experience with the process of getting to an
+answer.</p>
+
+  <p>So let’s remedy that shall we?</p>
+</div>
+<hr />
+
+<h2 id="the-game-makers-toolkit-patron-jam">The Game Maker’s Toolkit Patron Jam</h2>
+
+<div class="text">
+  <p>I’m a member of the amazing Game Maker’s Toolkit (GMTK) Patron community on Discord. This December the community are
+running a seven day game jam (think ‘hackathon where everyone makes a game to a theme’), with a theme voted for by the
+community - and, uhh, picked by me!</p>
+
+  <p>Link: https://itch.io/jam/gmtk-patreon-2024</p>
+
+  <p>Well, that’s not quite right; I’ve been running the theme submission/voting website (on this very
+site! https://themes.badlydone.dev/), and because I won’t be participating in the jam itself I’ll be the one to announce
+which theme has won the voting. I won’t be picking my favourite theme or anything, but just announcing which theme was
+the best as decided by community voting.</p>
+</div>
+
+<blockquote>
+  <h2 id="what-do-you-mean-by-theme-anyway">What Do You Mean By “Theme” Anyway?</h2>
+
+  <div class="text">
+    <p>The theme for a game jam is the inspiration for the games that people are making - it can be basically anything, but
+the best themes straddle the line between “vague enough to give developers creative control” and “limiting enough that
+it inspires creativity”.</p>
+
+    <p>For reference, here are the last few themes the annual GMTK jam has used:</p>
+    <ul>
+      <li>Built to Scale</li>
+      <li>Roles Reversed</li>
+      <li>Roll of the Dice</li>
+      <li>Joined Together</li>
+      <li>Out of Control</li>
+    </ul>
+
+    <p>These are all solid themes! Each one has a nugget of inspiration for where your game might go, but they’re not so
+prescriptive that you have to make a game in a specific lane or with specific concerns (the much maligned GGJ 2024
+theme “Make Me Laugh” is an example of this; to adhere to the theme, you game might need some element of comedic
+writing, which is one hell of a restriction).</p>
+
+    <p>So as human with human brains here, we can evaluate our nascent Data Science efforts by judging the top themes from
+our experiments to judge if they’re in the sweet spot of “not too vague to be meaningless” and “not too specific to
+limit freedom”.</p>
+  </div>
+</blockquote>
+
+<div class="text">
+  <p>One small problem: the voting system we picked was… suboptimal.</p>
+
+  <p>Well, kind of.</p>
+
+  <p>We allowed everything to submit up to three themes - come the end of the submission window, we have 223 themes under
+consideration. We build a ranked voting system where every participant gets a deterministically random set of ten themes
+from the pool, and they rank them from best to worst. We had ~130 people vote, each on 10 themes at a time.</p>
+
+  <p>Allowing three themes per person (which Amit, the brains behind the voting system, warned would be a problem) gave us
+way too many options with not enough votes to go around. Once we had three themes per person, limiting each voter to 10
+themes artificially limited how many votes we could spread around. Similar problem to before; a lack of enough data.</p>
+</div>
+
+<h3 id="data-problem-1-we-had-120-people-voting-on-240-themes">Data Problem #1: We had ~120 people voting on ~240 themes</h3>
+
+<div class="text">
+  <p>By limiting users to 10 themes to vote across, we’ve massively limited how many votes each theme can get. For the 200+
+themes in the pool, the most votes a specific theme got was <em>11</em>.</p>
+
+  <p>The <strong>mean</strong> number of votes each theme got was 5.8 - which, honestly, was more than I’d expected from having so many
+themes in scope. As you might imagine, this left me with some pretty suspect numbers.</p>
+
+  <p>How do you pick between a theme which gets four 5-star votes and a theme which gets ten votes of 3, 4, 5?</p>
+
+  <p>Well, let’s start simple and see where that gets us.</p>
+</div>
+<hr />
+
+<h2 id="trying-stuff-and-seeing-why-its-garbage">Trying Stuff And Seeing Why It’s Garbage</h2>
+
+<h3 id="attempt-the-first-raw-score">Attempt The First: Raw Score</h3>
+<div class="text">
+  <p>Approach:</p>
+</div>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="p">(</span><span class="n">theme</span> <span class="k">in</span> <span class="n">themes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">theme</span><span class="p">.</span><span class="n">score</span> <span class="p">=</span> <span class="n">theme</span><span class="p">.</span><span class="n">votes</span><span class="p">.</span><span class="nf">sumOf</span> <span class="p">{</span> <span class="n">it</span><span class="p">.</span><span class="n">score</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">val</span> <span class="py">winningTheme</span> <span class="p">=</span> <span class="n">themes</span><span class="p">.</span><span class="nf">maxBy</span> <span class="p">{</span> <span class="n">it</span><span class="p">.</span><span class="n">score</span> <span class="p">}</span>
+</code></pre></div></div>
+<div class="text">
+  <p>Results:</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Theme</th>
+      <th>Score</th>
+      <th>Votes (top: +5, bottom: -4)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Indirect Control</td>
+      <td>25</td>
+      <td>5, 5, 5, 4, 4, 3, 1, 0, -2</td>
+    </tr>
+    <tr>
+      <td>Don’t Stop</td>
+      <td>23</td>
+      <td>5, 5, 5, 4, 3, 2, 2, 1, 0, -1, -3</td>
+    </tr>
+    <tr>
+      <td>The Other Way</td>
+      <td>23</td>
+      <td>5, 5, 5, 4, 2, 1, 1</td>
+    </tr>
+    <tr>
+      <td>Fight Without Attack Buttons</td>
+      <td>22</td>
+      <td>5, 5, 5, 4, 3, 2, -1, -1</td>
+    </tr>
+    <tr>
+      <td>A New Twist On An Old Classic</td>
+      <td>22</td>
+      <td>5, 5, 4, 4, 3, 1, 2, -1</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>Bending the rules</td>
+      <td>18</td>
+      <td>5, 5, 4, 4</td>
+    </tr>
+    <tr>
+      <td>Combination</td>
+      <td>16</td>
+      <td>5, 4, 4, 3</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>(Redacted)</td>
+      <td>-30</td>
+      <td>0, 0, -1, -3, -3, -3, -4, -4, -4, -4, -4</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="text">
+  <p>Get all the votes for each theme, sum them together, take the theme with the highest total.</p>
+
+  <p>Quick, simple, easy, and hideously biased.</p>
+
+  <p>Why? Well, indulge me a quick sidebar:</p>
+</div>
+
+<blockquote>
+  <h3 id="data-problem-2-the-enormous-range-of-votes-cast">Data Problem #2: The Enormous Range Of Votes Cast</h3>
+
+  <div class="text">
+    <p>Each voter got their themes in the laziest way I could think of:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>random = Random(userId)
+themes = database.getAllThemes().shuffle(random).subList(0, 10)
+</code></pre></div>    </div>
+
+    <p>By using the <code class="language-plaintext highlighter-rouge">userId</code> to seed the PRNG we should be sure each voter always saw the same ten themes. We assumed this
+would lead to a broadly even distribution of votes, which it did:</p>
+
+    <p><img src="/articles/number-of-votes-per-theme.png" alt="A normal distribution that highly skews to 5 votes per theme" title="Number of votes per theme" /></p>
+
+    <p>The problem here is that because we have so many themes, there just weren’t enough votes to go around. That normal
+distribution peaks around 4.5 votes per theme, which just isn’t very much information at all.</p>
+  </div>
+</blockquote>
+<div class="text">
+  <p><strong>TLDR: Because the themes have wildly different numbers of votes, the raw score biased too heavily for themes that
+just happened to be seen more.</strong></p>
+
+  <p>Which is obvious, right? If we look at “Bending the rules” or “Combination” those two themes both had good scores, they
+just didn’t get very many of them. That’s a flaw with the voting system, where those lucky themes seen more often have
+the bias in their favourite.</p>
+
+  <p>Let’s try something else…</p>
+</div>
+<hr />
+
+<h3 id="attempt-the-second-average-score">Attempt The Second: Average Score</h3>
+
+<div class="text">
+  <p>High school stats class here I come! Let’s try to account for the inconsistent vote totals by calculating the average
+score for each theme, and go from there.</p>
+
+  <p>The results:</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Theme</th>
+      <th>Average Score</th>
+      <th># Of Votes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bending the rules</td>
+      <td>4.5</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>Combination</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>Third Time’s a Charm</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>The Other Way</td>
+      <td>3.285</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>Indirect Control</td>
+      <td>2.777</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>Fight Without Attack Buttons</td>
+      <td>2.75</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>Don’t Stop</td>
+      <td>2.091</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>(Redacted)</td>
+      <td>-2.7272727</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="text">
+  <p>Hmm. Well those certainly are <em>different</em>, but I’m a bit concerned we’ve gone too far in the other direction; instead of
+biasing towards themes that happened to be seen by lots of people, it looks like we’re now biasing towards themes that
+(by chance) happened to only be seen by a small number of people who really liked the theme.</p>
+
+  <p>If all votes had been seen by 10, 20, 50 people, then I’d be a bit more relaxed about this. But two or three +5 votes
+defining the “best theme” doesn’t quite add up; we’ve swung too far in the other direction.</p>
+
+  <p>Maybe we can adjust for how many votes each theme got? Multiply the average up or down a bit?</p>
+
+  <p>Let’s try something else…</p>
+</div>
+<hr />
+
+<h3 id="attempt-the-second-point-two-weighted-average-score">Attempt The Second-Point-Two: Weighted Average Score</h3>
+
+<p>[TABLE REDACTED BECAUSE IT WAS POINTLESS]</p>
+<div class="text">
+  <p>I won’t waste your time here; it’s like using the average score, but with a multiplier that tries to account for the
+very different numbers of votes. How, you ask?</p>
+
+  <p>Penalising themes with fewer votes just lead back to the first attempt, where more votes was broadly better. Boosting
+themes with fewer votes just exacerbated the issue with average score above, where a few good votes was all that was
+needed. Trying to corral towards the median just left us with a whole bunch of the middling themes not getting penalised
+in either direction.</p>
+
+  <p>Trying to figure out what a “good” vote was highlighted the two major fallacies I’d not addressed up until this point:</p>
+</div>
+
+<blockquote>
+  <h3 id="data-problem-3-the-scores-dont-mean-shit">Data Problem #3: The Scores Don’t Mean Shit</h3>
+
+  <div class="text">
+    <p>As mentioned at the top, everyone’s ranked votes were submitted from +5 to -4 (no, I don’t remember why we did this).
+The ranked voting system means all the votes are submitted relative to each other; there’s no way real way to have
+comparable scores between themes (and between people).</p>
+
+    <p>What do I mean by that?</p>
+
+    <p>If someone gets four brilliant themes in their selection, the scores those brilliant theme will be given are +5, +4,
++3, and +2, and so on.</p>
+
+    <p>If someone gets one excellent theme, one ok theme, and a handful of complete duds? You guessed it: +5, +4, +3 and so
+on again.</p>
+
+    <p>And even worse: if someone gets one “meh” theme and nine complete stinkers? You better believe those stinkers are
+scoring just as highly as someone else’s 2nd/3rd/4th votes.</p>
+  </div>
+</blockquote>
+
+<blockquote>
+  <h3 id="data-problem-32-you-cant-do-maths-on-relative-numbers">Data Problem #3.2: You Can’t Do Maths On Relative Numbers</h3>
+
+  <div class="text">
+    <p>I expect any seasoned data scientists reading have been waiting for this clanger to drop for some time now: the
+numbers are all relative, I shouldn’t be trying to directly compare them. If my 3rd place vote was great but not quite
+excellent, and your 3rd place was the ok-ist of a mediocre bunch, why are we trying to equate those votes together?</p>
+
+    <p>Moreover, consider this:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"theme": "Nothing But Crabs"
+"votes": [
+	{
+		"first": "user-id-1",
+		"second": 5
+	},
+	{
+		"first": "user-id-2",
+		"second": 3
+	},
+	{
+		"first": "user-id-3",
+		"second": 3
+	}
+]
+</code></pre></div>    </div>
+
+    <p>User 1 ranked this theme as their top pick, that’s not too troublesome. We can confidently say “That’s the favourite
+theme User 1 had in their selection”. Good stuff.</p>
+
+    <p>Users 2 and 3 voted “Nothing But Crabs” in the same place, but… are they the same? I don’t think we can say that.
+As mentioned in Data Problem #3, your third place theme and my third place theme are in two totally different frames
+of reference.</p>
+  </div>
+</blockquote>
+
+<div class="text">
+  <p>There’s no way to directly compare the scores themselves. Perhaps we can use the <em>positions</em> of themes to evaluate which
+ones were more popular?</p>
+
+  <p>Let’s try something else…</p>
+</div>
+<hr />
+
+<h3 id="attempt-i-dont-know-which-relative-positions-table">Attempt I Don’t Know Which: Relative Positions Table</h3>
+
+<div class="text">
+  <p>(Fun fact! This may or may not also be a naive implementation of
+a <a href="https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model">Bradley-Terry model</a>. I’m honestly not sure.)</p>
+
+  <p>When users rank their votes, the scores themselves are meaningless as scores; all they tell us are the order a specific
+user rated their themes.</p>
+
+  <p>So maybe our definition of “the best theme” could be “the theme that was rated above others most consistently”!</p>
+
+  <p>If we compare every theme against every other theme (“pairwise comparisons”), we could calculate which specific theme
+appeared above most other themes most of the time. If we loop over all the themes and compare the position scores they
+received <strong>as compared to other themes in the same collection of votes</strong>, we could build a table that shows us how often
+one theme was preferred over another.</p>
+
+  <p>This was a bit more involved (read: I had a proper data scientist help me with this), but what we built is this:</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Theme (+1 when row appears above column)</th>
+      <th>The Other Way</th>
+      <th>Divide and conquer</th>
+      <th>Return to Sender</th>
+      <th>…</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>The Other Way</td>
+      <td>x</td>
+      <td>-1, -1, 1</td>
+      <td>-1, 1, -1, 1</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>Divide and conquer</td>
+      <td>1, 1, -1</td>
+      <td>x</td>
+      <td>-1</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>Return to Sender</td>
+      <td>1, -1, 1, -1</td>
+      <td>1</td>
+      <td>x</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="text">
+  <p>For every theme, we calculate how often it appeared <em>above</em> every other theme, regardless of the specific position of
+that theme in the list. The thinking being, the theme which comes out on top most consistently against other themes
+would be a strong theme suggestion, even if it didn’t always get the highest score possible.</p>
+
+  <p>What we then do is sum up each row of the table: this gives us a numeric score for how often this theme appeared above
+other themes, although I’m honestly not sure what specific terms we can nail down for this! At this point in the hazy
+world of Data Science, I’ve completely lost track of what technical terms exist, or if I’m just doing… stuff!</p>
+</div>
+
+<div class="text">
+  <p>The pseudocode looks like this:</p>
+  <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">dataTable</span><span class="p">:</span> <span class="nc">Map</span><span class="p">&lt;</span><span class="nc">Pair</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">,</span> <span class="nc">String</span><span class="p">&gt;,</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">Int</span><span class="p">&gt;&gt;</span> <span class="p">=</span> <span class="nf">builtAsThatTableAbove</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="n">voteX</span> <span class="k">in</span> <span class="n">allVotesCast</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">voteY</span> <span class="k">in</span> <span class="n">allVotesCast</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">voteX</span><span class="p">.</span><span class="n">themeId</span> <span class="p">==</span> <span class="n">voteY</span><span class="p">.</span><span class="n">themeId</span><span class="p">)</span> <span class="p">{</span> <span class="k">continue</span> <span class="p">}</span>
+
+        <span class="kd">val</span> <span class="py">comparativeVotes</span> <span class="p">=</span> <span class="n">dataTable</span><span class="p">[</span><span class="n">voteX</span><span class="p">.</span><span class="n">themeId</span> <span class="n">to</span> <span class="n">voteY</span><span class="p">.</span><span class="n">themeId</span><span class="p">]</span>
+        <span class="n">comparativeVotes</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="n">voteX</span><span class="p">.</span><span class="n">score</span> <span class="p">&gt;</span> <span class="n">voteY</span><span class="p">.</span><span class="n">score</span><span class="p">)</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div>  </div>
+
+  <p>This table looks like this:</p>
+
+  <p>(I’ve reduced the UUIDs down to the first segment for readability)</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0 = "(16ec8df0, 4aa5d0e0): [1, -1]"
+1 = "(16ec8df0, 5df19fac): [1, 1]"
+2 = "(16ec8df0, be720f3f): [1]"
+3 = "(16ec8df0, bda40ad7): [1]"
+4 = "(16ec8df0, c4c4e931): [1]"
+5 = "(16ec8df0, 08390b61): [1]"
+6 = "(16ec8df0, 00adf4ab): [1]"
+7 = "(16ec8df0, 5148534a): [1]"
+</code></pre></div>  </div>
+
+  <p>So comparing <code class="language-plaintext highlighter-rouge">16ec8df0</code> (“Stupid applications of interesting technology”) to <code class="language-plaintext highlighter-rouge">4aa5d0e0</code> (“Combination”), there is one
+instance where <code class="language-plaintext highlighter-rouge">16ec8df0</code> ranked higher than <code class="language-plaintext highlighter-rouge">4aa5d0e0</code> and one instance where it ranked lower.</p>
+
+  <p>When comparing <code class="language-plaintext highlighter-rouge">16ec8df0</code> to <code class="language-plaintext highlighter-rouge">5df19fac</code> (“Out of reach”), 100% of (both) instances where the two
+themes appeared on the same list, <code class="language-plaintext highlighter-rouge">16ec8df0</code> ranked more highly.</p>
+
+  <p>The theme that comes out on top compared to the most other themes, most often, seems like a strong contender for the
+best theme.</p>
+</div>
+
+<div class="text">
+  <p>In order to convert that concept (and also the variably-lengthed arrays of +1s and -1s) into a sortable format, we can
+calculate a total score for each theme in the following way:</p>
+
+  <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// This approach isn't very Kotlin-esque, but it's a lot easier to read</span>
+<span class="k">for</span> <span class="p">((</span><span class="n">themeIds</span><span class="p">,</span> <span class="n">arrayOfOffsets</span><span class="p">)</span> <span class="k">in</span> <span class="n">comparativeVotes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// [Do some basic data initialisation stuff]</span>
+
+    <span class="kd">val</span> <span class="py">themeUnderEvaluation</span> <span class="p">=</span> <span class="n">themeIds</span><span class="p">.</span><span class="n">first</span> <span class="c1">// In that block above, note that the key is the (theme, theme) tuple!</span>
+
+    <span class="c1">// Build up a running total of the theme scores;</span>
+    <span class="c1">// Because the number of times each theme was compared varies, we need to normalise the score to balance</span>
+    <span class="c1">// between themes with many offsets and themes with only a few</span>
+    <span class="kd">val</span> <span class="py">normalisedOffsetScore</span> <span class="p">=</span> <span class="n">arrayOfOffsets</span><span class="p">.</span><span class="nf">sum</span><span class="p">().</span><span class="nf">toFloat</span><span class="p">()</span> <span class="p">/</span> <span class="n">arrayOfOffsets</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="nf">toFloat</span><span class="p">()</span>
+    <span class="n">scores</span><span class="p">[</span><span class="n">themeUnderEvaluation</span><span class="p">]</span> <span class="p">=</span> <span class="n">scores</span><span class="p">[</span><span class="n">themeUnderEvaluation</span><span class="p">]</span> <span class="p">+</span> <span class="n">normalisedOffsetScore</span>
+<span class="p">}</span>
+</code></pre></div>  </div>
+</div>
+
+<h3 id="data-problem-1-again">Data Problem #1 (Again):</h3>
+
+<div class="text">
+  <p>Sadly, we just can’t get around the fact that limiting each person to ten themes just doesn’t give us enough data to
+work with. When we calculate <code class="language-plaintext highlighter-rouge">dataTable</code> and build our grid of comparative checks, we see the most that two themes
+appeared in the same list is… 4 times.</p>
+
+  <p>Each <code class="language-plaintext highlighter-rouge">comparativeVotes</code> array is bound for the express checkout, with four items or fewer!</p>
+
+  <p>The results:</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Theme</th>
+      <th>Relative Position Score</th>
+      <th>How many comparisons?</th>
+      <th>Votes (scale: +5 to -4)</th>
+      <th>(Total Score)</th>
+      <th>(Average Score)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bending the rules</td>
+      <td>0.882</td>
+      <td>34</td>
+      <td>5, 5, 4, 4</td>
+      <td>18</td>
+      <td>4.5</td>
+    </tr>
+    <tr>
+      <td>Combination</td>
+      <td>0.781</td>
+      <td>32</td>
+      <td>5, 4, 4, 3</td>
+      <td>16</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>Third Time’s a Charm</td>
+      <td>0.760</td>
+      <td>25</td>
+      <td>5, 4, 3</td>
+      <td>12</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>Cooperate with your enemy</td>
+      <td>0.714</td>
+      <td>35</td>
+      <td>5, 4, 4, 2</td>
+      <td>15</td>
+      <td>3.75</td>
+    </tr>
+    <tr>
+      <td>Dreams and Reality</td>
+      <td>0.706</td>
+      <td>34</td>
+      <td>5, 5, 3, 2</td>
+      <td>15</td>
+      <td>3.75</td>
+    </tr>
+    <tr>
+      <td>Out of Space</td>
+      <td>0.636</td>
+      <td>33</td>
+      <td>5, 5, 2, 1</td>
+      <td>13</td>
+      <td>3.25</td>
+    </tr>
+    <tr>
+      <td>It’s not your turn</td>
+      <td>0.630</td>
+      <td>27</td>
+      <td>5, 3, 2</td>
+      <td>10</td>
+      <td>3.33</td>
+    </tr>
+    <tr>
+      <td>The Other Way</td>
+      <td>0.625</td>
+      <td>56</td>
+      <td>5, 5, 5, 4, 2, 1, 1</td>
+      <td>23</td>
+      <td>3.29</td>
+    </tr>
+    <tr>
+      <td>Start at the End</td>
+      <td>0.610</td>
+      <td>41</td>
+      <td>5, 5, 3, 3, 0</td>
+      <td>18</td>
+      <td>3.2</td>
+    </tr>
+    <tr>
+      <td>Genre vs genre</td>
+      <td>0.600</td>
+      <td>25</td>
+      <td>5, 4, 1</td>
+      <td>10</td>
+      <td>3.33</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>”” (I forgot to remove this before the voting went live!)</td>
+      <td>-0.951</td>
+      <td>41</td>
+      <td>-3, -4, -4, -4, -4</td>
+      <td>-19</td>
+      <td>-3.8</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="text">
+  <p>Hmm. High average score, but low total score.</p>
+
+  <p>While the top theme has a decent total and average score, we’re seeing some themes that look as though they should score
+poorly rating quite highly.</p>
+
+  <p>The range of “how many times was one theme compared to all other themes?” was 86 at the high end (“-vania”), down to 9
+at the very lowest (“[genre] without [mechanic]”). I have no earthly idea what to do with that information.</p>
+</div>
+
+<h2 id="attempt-the-last-plackett-luce-model">Attempt The Last: Plackett-Luce model</h2>
+
+<div class="text">
+  <p>I’m on shaky ground here; throughout this process a wonderful colleague of mine Hollie was supporting me as I figured
+out what questions to ask and how to go about answering them. I was more or less following along, until one morning
+Hollie DM’d me saying “Hey, I tried this model I found online, what do you think?”</p>
+
+  <p>That model was the Plackett-Luce model which, when run on some totally incomprehensible R code, produced a theme
+ordering that looked broadly the same as the pairwise approach above, but had much more sensible themes at the bottom of
+the table.</p>
+
+  <p>(The best explanation I found of how the Plackett-Luce model works was
+by <a href="https://statisticaloddsandends.wordpress.com/2024/04/24/what-is-the-plackett-luce-model/">this post by Statistical Odds &amp; Ends</a>,
+which I highly recommend giving a read.)</p>
+
+  <p>Instead of working with pairwise preferences - comparing two themes as though they were the only two things we cared to
+vote on (“Red or Blue?”) - we can use the Packett-Luce model to handle <em>listwise</em> references.</p>
+
+  <p>One of the clever things about this model is that the ranking process happens one step at a time - the most probable
+element at position #1 is calculated, and then totally independent of that calculation, the element at position #2 is
+calculated based only on the theme data that is remaining.</p>
+
+  <p>It doesn’t actually make a different to which theme came in position #1 (which at least validates the pairwise table
+approach!), but it’s interesting to see.</p>
+</div>
+<div class="text">
+  <p>The results:</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Theme</th>
+      <th>Score that ranked us here?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bending the rules</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>Combination</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>Third Time’s a Charm</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>Dreams and Reality</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>weird little guys</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>Cooperate with your enemy</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>No Straight Lines</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>The Other Way</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>Out of Space</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>decay</td>
+      <td>???</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+    <tr>
+      <td>”” (This came last here too)</td>
+      <td>???</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="text">
+  <p>So while there’s a lot more black box magic than I’d care for, it’s very gratifying to see that the order is extremely
+close to the pairwise list above.</p>
+
+  <p>This does make a lot of sense, considering that the Plackett-Luce model is a list-oriented version of the more generic
+Bradley-Terry model, which I may or may not have built (or possibly just approximated) in the previous step.</p>
+
+  <p>Given that I’m only looking to find the single “best” theme to become the theme for the jam, and one theme in particular
+topped the charts in everything but raw score, it seems like we’ve got a strong candidate: “Bending the rules”.</p>
+
+  <p>And, bringing the human factor back into things, what’s my gut feel evaluation? It’s a good theme! Therefore…</p>
+</div>
+<hr />
+
+<h2 id="the-theme-for-the-first-gmtk-patron-jam-is-bending-the-rules">The Theme For The First GMTK Patron Jam Is… ‘Bending The Rules’!</h2>
+
+<hr />
+
+<h2 id="conclusion">Conclusion</h2>
+<div class="text">
+  <p>I had a good time with this - while I don’t know if my data science skills are much sharper, I think I’d be
+able to try doing this whole theme-ranking thing again in the future at least!</p>
+
+  <p>(Not the most ringing endorsement there’s ever been, I’ll admit)</p>
+
+  <p>Oh, and for the next GMTK Patron jam we hold? Either people can vote on as many themes as they want, or I’m finding
+a benevolent dictator to just pick their favourite from a shortlist.</p>
+
+  <p>Until next time!</p>
+</div>
+
+        </section>
+
+        <footer>
+            <div class="guestbook-prompt">
+                Email me: <a href="mailto:will@dotwo.games" class="email-link">will@dotwo.games</a>
+            </div>
+
+            <div class="made-with">Made with Jekyll. Filled with mistakes.</div>
+            <div>&copy;badlydonedev. All rights reserved if I ever figure out how.</div>
+            <div>Best viewed at 800x600 | <a href="#top" style="color:#666">Back to top</a></div>
+        </footer>
+    </div>
+</main>
+
+<script>
+    (function () {
+        const field = document.getElementById('starfield');
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < 80; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.top = Math.random() * 100 + '%';
+            s.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+            s.style.setProperty('--delay', (Math.random() * 3) + 's');
+            if (Math.random() > 0.7) {
+                s.style.width = '3px';
+                s.style.height = '3px';
+            }
+            frag.appendChild(s);
+        }
+        field.appendChild(frag);
+    })();
+</script>
+</body>
+
+</html>
